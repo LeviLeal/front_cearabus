@@ -1,37 +1,75 @@
-import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export default function Index() {
+export default function LoginScreen() {
+  const navigation = useNavigation();
+  const [login, setLogin] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const handleLogin = () => {
+    // navigation.navigate('rotas' as never);
+    navigation.navigate('nav' as never);
+
+  };
+
   return (
-    <View
-      style={styles.view}
-    >
-      <Link href="/login" style={styles.loginButton}>Entrar no CearáBus</Link>
-      <Text style={styles. descriptionText}>O CearaBus tem a missão de facilitar a vida do universitario de Quixeramobim, modernidade na palma da sua mão.</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Entrar</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Login"
+        value={login}
+        onChangeText={setLogin}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Acessar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  
-  descriptionText: {
-    textAlign: "center"
-  },
-  view: {
+  container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundImage: "../assets/icon.png"
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  loginButton: {
-    width: 200,
-    height: 40,
-    backgroundColor: "blue",
-    color: "white",
+  title: {
+    fontSize: 28,
+    marginBottom: 25,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#aaa',
     borderRadius: 8,
-    textAlign: "center",
-    verticalAlign: "middle",
-    fontWeight: "500",
-  }
-
-})
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 15,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
