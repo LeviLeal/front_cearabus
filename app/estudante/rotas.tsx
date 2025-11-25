@@ -15,7 +15,7 @@ const rotas: Rota[] = [
   { id: '3', horario: '', faculdades: [], rota: '' },
 ];
 
-export default function RoutesScreen() {
+export default function Rotass() {
   const renderItem = () => (
     <View style={styles.card}>
       <Text style={styles.horario}>Horário: (preencher)</Text>

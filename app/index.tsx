@@ -1,16 +1,20 @@
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function LoginScreen() {
-  const navigation = useNavigation();
   const [login, setLogin] = useState('');
   const [senha, setSenha] = useState('');
 
   const handleLogin = () => {
     // navigation.navigate('rotas' as never);
-    navigation.navigate('nav' as never);
 
+    const isAdmin = true
+
+    if (!isAdmin)
+      router.push("/estudante/nav")
+    else
+      router.push("/admin/nav")
   };
 
   return (
@@ -35,7 +39,12 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
+      <TouchableOpacity>
+        <Text style={styles.buttonCadastrar} onPress={() => router.push("/cadastrar")}> Não tem uma conta? Cadastre-se</Text>
+      </TouchableOpacity>
     </View>
+
+
   );
 }
 
@@ -72,4 +81,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  buttonCadastrar: {
+    color: '#007bff',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 15,
+  }
 });
