@@ -2,6 +2,10 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+import { ImageBackground } from 'react-native';
+
+const image = require("../assets/images/home_bus.jpeg")
+
 export default function LoginScreen() {
   const [login, setLogin] = useState('');
   const [senha, setSenha] = useState('');
@@ -9,7 +13,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     // navigation.navigate('rotas' as never);
 
-    const isAdmin = true
+    const isAdmin = false
 
     if (!isAdmin)
       router.push("/estudante/nav")
@@ -19,6 +23,9 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+
+      <ImageBackground source={image} resizeMode="cover" style={styles.image}></ImageBackground>
+
       <Text style={styles.title}>Entrar</Text>
 
       <TextInput
@@ -49,6 +56,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  image: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -88,3 +99,4 @@ const styles = StyleSheet.create({
     marginTop: 15,
   }
 });
+

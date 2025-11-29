@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import alunos from './alunos';
@@ -10,10 +11,31 @@ const Tab = createBottomTabNavigator();
 export default function Tabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Rotas" component={rotas} />
-      <Tab.Screen name="Avisos" component={avisos} />
-      <Tab.Screen name="Reclamacoes" component={reclamacoes} />
-      <Tab.Screen name="Alunos" component={alunos} />
+      <Tab.Screen name="Alunos" component={alunos} 
+       options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="school" size={size} color={color} />
+          ),
+        }}/>
+      <Tab.Screen
+        name="Rotas"
+        component={rotas}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="directions-bus" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen name="Avisos" component={avisos}  options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="warning" size={size} color={color} />
+          ),
+        }}/>
+      <Tab.Screen name="Reclamacoes" component={reclamacoes}  options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="chat-bubble" size={size} color={color} />
+          ),
+        }}/>
     </Tab.Navigator>
   );
 }
