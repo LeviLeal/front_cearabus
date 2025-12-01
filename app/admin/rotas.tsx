@@ -19,16 +19,13 @@ const rotas: Rota[] = [
 export default function Rotass() {
   const renderItem = () => (
     <View style={styles.card}>
-      <Text style={styles.horario}>Horário: (preencher)</Text>
-      <Text style={styles.label}>Faculdades:</Text>
-
+      <Text style={styles.horario}>Horário</Text>
       <View style={styles.listaFaculdades}>
-        <Text style={styles.placeholder}>- (preencher)</Text>
-        <Text style={styles.placeholder}>- (preencher)</Text>
+        <Text style={styles.placeholder}>Faculdade 1</Text>
+        <Text style={styles.placeholder}>Faculdade 2</Text>
       </View>
 
-      <Text style={styles.label}>Rota:</Text>
-      <Text style={styles.placeholder}>(preencher)</Text>
+      <Text style={styles.placeholder}>Rotas</Text>
 
       {/* Botões de editar e remover */}
       <View style={styles.actionsRow}>
@@ -49,8 +46,6 @@ export default function Rotass() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Rotas e Horários</Text>
-
       <FlatList
         data={rotas}
         keyExtractor={(item) => item.id}
@@ -123,7 +118,7 @@ const styles = StyleSheet.create({
 
   removeButton: {
     flex: 1,
-    backgroundColor: "#dc3545",
+    backgroundColor: "rgba(254, 73, 91, 1)",
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",

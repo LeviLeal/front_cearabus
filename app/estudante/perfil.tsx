@@ -1,32 +1,61 @@
-import React from 'react';
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function PerfilEstudante() {
+
+  type Usuario = {
+    id: number;
+    nome: string;
+    cpf: string;
+    aprovado: boolean;
+    curso: string;
+    declaracao_matricula: string;
+    foto_rosto: string,
+    instituicao: string,
+    ponto_embarque: string;
+    senha: string;
+    turno: string;
+    // coloque outros campos que vêm da API
+  };
+
+
+  const [usuario, setUsuario] = useState<Usuario | null>(null)
+
+  useEffect(() => {
+    async function carregar() {
+      const data = await AsyncStorage.getItem("usuario")
+      if (data) {
+        setUsuario(JSON.parse(data))
+        console.log(data)
+      }
+
+    }
+    carregar()
+  }, [])
+  console.log(usuario)
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Carteira de Estudante</Text>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Nome:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <MaterialIcons name="person-pin" size={200} />
 
-        <Text style={styles.label}>Semestre:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <Text style={styles.label}>Nome </Text>
+        <Text style={styles.placeholder}>{usuario?.nome}</Text>
 
-        <Text style={styles.label}>Curso:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <Text style={styles.label}>Curso</Text>
+        <Text style={styles.placeholder}>{usuario?.curso}</Text>
 
-        <Text style={styles.label}>Instituição:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <Text style={styles.label}>Instituição</Text>
+        <Text style={styles.placeholder}>{usuario?.instituicao}</Text>
 
-        <Text style={styles.label}>Horário:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <Text style={styles.label}>Turno</Text>
+        <Text style={styles.placeholder}>{usuario?.turno}</Text>
 
-        <Text style={styles.label}>Matrícula:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
-
-        <Text style={styles.label}>Ponto de Embarque:</Text>
-        <Text style={styles.placeholder}>(preencher)</Text>
+        <Text style={styles.label}>Ponto de Embarque</Text>
+        <Text style={styles.placeholder}>{usuario?.ponto_embarque}</Text>
+        
       </View>
     </ScrollView>
   );

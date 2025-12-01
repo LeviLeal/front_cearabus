@@ -1,38 +1,83 @@
-import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Dados apenas para estrutura
-const reclamacoes = [
-  { id: '1', data: '', hora: '', mensagem: '' },
-  { id: '2', data: '', hora: '', mensagem: '' },
-  { id: '3', data: '', hora: '', mensagem: '' },
-];
+
+type Reclamacao = {
+  id: number;
+  mensagem: string;
+  telefone: string;
+}
 
 export default function AdminComplaintsScreen() {
-  const renderItem = ({ item }: any) => (
+
+  const [reclamacoes, setReclamacoes] = useState<Reclamacao[]>([]);
+  const [loading, setLoading] = useState(true)
+
+
+  useEffect(() => {
+    const fetchReclamacoes = async () => {
+      try {
+        const response = await fetch("http://10.0.2.2:3000/reclamacao/listar/")
+        const json = await response.json()
+
+        if (json.status === "OK")
+          setReclamacoes(json.data)
+
+      } catch (error) {
+        console.log(`Erro ao retornar dados: ${error}`)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchReclamacoes()
+  }, [])
+
+  const handleExcluir = async (id: number) => {
+    try {
+      const response = await fetch(`http://10.0.2.2:3000/reclamacao/remover/${id}`, {
+        method: "DELETE",
+      });
+
+      const json = await response.json();
+      console.log(json);
+
+      if (json.status === "OK") {
+        setReclamacoes((prev) => prev.filter((reclamacao) => reclamacao.id !== id));
+      }
+    } catch (error) {
+      console.error("Erro ao excluir reclamação:", error);
+    }
+  };
+
+  const renderItem = ({ item }: { item: Reclamacao }) => (
     <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.mensagem}>{item.mensagem}</Text>
+        <View style={styles.actions}>
 
-      {/* Linha com a data e hora */}
-      <View style={styles.headerRow}>
-        <Text style={styles.dataHora}>(data preencher)</Text>
-        <Text style={styles.dataHora}>(hora preencher)</Text>
+          <TouchableOpacity onPress={() => handleExcluir(item.id)}>
+            <MaterialIcons name="close" size={24} />
+          </TouchableOpacity>
+        </View>
       </View>
-
-      {/* Mensagem */}
-      <Text style={styles.mensagem}>(mensagem preencher)</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.dataHora}>{item.telefone}</Text>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Reclamações</Text>
-
-      <FlatList
+      {loading ? (
+        <Text>Carregando</Text>
+      ) : <FlatList
         data={reclamacoes}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 30 }}
-      />
+      />}
     </View>
   );
 }
@@ -60,6 +105,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -76,5 +127,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     lineHeight: 22,
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16
   },
 });

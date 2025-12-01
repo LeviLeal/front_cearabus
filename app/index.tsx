@@ -1,77 +1,138 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { ImageBackground } from 'react-native';
-
-const image = require("../assets/images/home_bus.jpeg")
+const { height } = Dimensions.get('window');
+const TOP_HEIGHT = height / 3; // primeiro terço
 
 export default function LoginScreen() {
   const [login, setLogin] = useState('');
   const [senha, setSenha] = useState('');
 
-  const handleLogin = () => {
-    // navigation.navigate('rotas' as never);
+  const handleLogin = async () => {
+    try {
+      const resposta = await fetch("http://10.0.2.2:3000/autenticar/logar/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf: login, senha })
+      });
 
-    const isAdmin = false
+      const dados = await resposta.json();
+      if (!resposta.ok) {
+        alert(dados.mensagem || "Erro ao fazer login");
+        return;
+      }
 
-    if (!isAdmin)
-      router.push("/estudante/nav")
-    else
-      router.push("/admin/nav")
+      const tipo = dados.tipo_user;
+
+      if (tipo === "estudante") {
+        router.push("/estudante/nav");
+        await AsyncStorage.setItem("usuario", JSON.stringify(dados.user_data));
+      } else if (tipo === "admin") {
+        router.push("/admin/nav");
+        await AsyncStorage.setItem("admin", JSON.stringify(dados.user_data));
+      }
+
+    } catch (erro) {
+      alert("Erro ao logar, verifique os dados.");
+    }
   };
 
   return (
     <View style={styles.container}>
 
-      <ImageBackground source={image} resizeMode="cover" style={styles.image}></ImageBackground>
+      {/* 🔹 BACKGROUND NO PRIMEIRO TERÇO */}
 
-      <Text style={styles.title}>Entrar</Text>
+      <LinearGradient
+        colors={['#307345', '#515cd7']}
+        style={{ width: '100%', height: TOP_HEIGHT }}
+      >
 
-      <TextInput
-        style={styles.input}
-        placeholder="Login"
-        value={login}
-        onChangeText={setLogin}
-      />
+        <View style={styles.logo}>
+          <MaterialIcons name="directions-bus" size={100} color={"white"} />
+          <Text style={styles.cearaBus}>CearaBus</Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
+      </LinearGradient>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Acessar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Text style={styles.buttonCadastrar} onPress={() => router.push("/cadastrar")}> Não tem uma conta? Cadastre-se</Text>
-      </TouchableOpacity>
+      {/* 🔹 CONTEÚDO DO LOGIN */}
+      <View style={styles.content}>
+        <Text style={styles.title}>Entrar</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Seu CPF"
+          value={login}
+          onChangeText={setLogin}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Sua senha"
+          secureTextEntry
+          value={senha}
+          onChangeText={setSenha}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Acessar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/cadastrar")}>
+          <Text style={styles.buttonCadastrar}>
+            Não tem uma conta? Cadastre-se
+          </Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
-
-
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    justifyContent: 'center',
+
+  title : {
+    color: "black",
+    textAlign: "center",
+    fontSize: 30,
+    fontWeight: 600,
+    marginBottom: 20
   },
+
   container: {
     flex: 1,
+    backgroundColor: '#ffffffff',
+
+  },
+
+  logo : {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
+  topImage: {
+    width: '100%',
+    backgroundColor: '#8c1010ff',
+    height: TOP_HEIGHT,
+  },
+
+  content: {
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 28,
+
+  cearaBus: {
+    color: "white",
+    fontSize: 40,
     marginBottom: 25,
-    textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
+
   input: {
     borderWidth: 1,
     borderColor: '#aaa',
@@ -80,6 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 15,
   },
+
   button: {
     backgroundColor: '#007bff',
     padding: 14,
@@ -87,11 +149,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+
   buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
   },
+
   buttonCadastrar: {
     color: '#007bff',
     fontSize: 16,
@@ -99,4 +163,3 @@ const styles = StyleSheet.create({
     marginTop: 15,
   }
 });
-

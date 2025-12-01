@@ -1,24 +1,56 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ComplaintsScreen() {
-  const [reclamacao, setReclamacao] = useState('');
-  const [numero, setNumero] = useState('');
+  const [mensagem, setReclamacao] = useState('');
+  const [telefone, setTelefone] = useState('');
 
-  const handleEnviar = () => {
-    console.log(reclamacao, numero);
+  const handleEnviar = async () => {
+    if (mensagem == "" || telefone == "") {
+      alert("Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      const resposta = await fetch("http://10.0.2.2:3000/reclamacao/criar/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          mensagem,
+          telefone,
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.mensagem || "Erro ao enviar reclamação.");
+        return;
+      }
+
+      alert("Reclamação enviada com sucesso!");
+
+      // Redirecionar para login
+      router.push("/");
+
+    } catch (erro) {
+      console.log("Erro:", erro);
+      alert("Falha ao conectar com o servidor.");
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Reclamações</Text>
       <View style={styles.textAreaContainer}>
         <Text style={styles.label}>Descreva sua reclamação:</Text>
 
         <TextInput
           style={styles.textarea}
           placeholder="Digite aqui..."
-          value={reclamacao}
+          value={mensagem}
           onChangeText={setReclamacao}
           multiline
         />
@@ -28,14 +60,14 @@ export default function ComplaintsScreen() {
         <Text style={styles.label}>Seu número:</Text>
         <TextInput
           style={styles.input}
-          placeholder="(preencher)"
+          placeholder="Preencha seu número"
           keyboardType="numeric"
-          value={numero}
-          onChangeText={setNumero}
+          value={telefone}
+          onChangeText={setTelefone}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleEnviar}>
-          <Text style={styles.buttonText}>Enviar</Text>
+          <Text style={styles.buttonText}>Enviar reclamação</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,30 +1,49 @@
-import React from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
-const avisos = [
-  { id: '1', tempo: '', conteudo: '' },
-  { id: '2', tempo: '', conteudo: '' },
-  { id: '3', tempo: '', conteudo: '' }
-];
-
 export default function AlertsScreen() {
-  const renderItem = () => (
-    <View style={styles.card}>
-      {/* Horário do aviso */}
-      <Text style={styles.tempo}>(preencher tempo)</Text>
+type Aviso = {
+  id: number;
+  titulo: string;
+  mensagem: string;
+};
 
-      {/* Conteúdo do aviso */}
-      <Text style={styles.conteudo}>(preencher conteúdo)</Text>
+  const [avisos, setAvisos] = useState([]);
+
+  const carregarAvisos = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:3000/aviso/listar/');
+      const json = await response.json();
+
+      if (json.status === "OK") {
+        setAvisos(json.data);
+      }
+    } catch (error) {
+      console.log("Erro ao carregar avisos:", error);
+    }
+  };
+
+  // Recarrega sempre que a tela fica em foco
+  useFocusEffect(
+    useCallback(() => {
+      carregarAvisos();
+    }, [])
+  );
+
+  const renderItem = ({item} : { item: Aviso }) => (
+    <View style={styles.card}>
+      <Text style={styles.tempo}>{item.titulo}</Text>
+      <Text style={styles.conteudo}>{item.mensagem}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Avisos</Text>
 
       <FlatList
         data={avisos}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 30 }}
       />
@@ -52,13 +71,13 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   tempo: {
-    fontSize: 14,
-    color: '#777',
-    marginBottom: 8,
-    fontWeight: '500'
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: 6
   },
   conteudo: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#333'
   }
 });

@@ -1,27 +1,56 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-// Exemplo de dados
-const alunos = [
-  { id: '1', nome: 'Aluno 1' },
-  { id: '2', nome: 'Aluno 2' },
-  { id: '3', nome: 'Aluno 3' },
-];
+type Aluno = {
+  id: number;
+  nome: string;
+  aprovado: boolean;
+  cpf: string;
+  curso: string;
+  instituicao: string;
+  turno: string;
+  ponto_embarque: string;
+  declaracao_matricula: string;
+  foto_rosto: string;
+};
 
 export default function AdminStudentsListScreen() {
-  const renderItem = ({ item }: any) => (
+  const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlunos = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:3000/admin/listar_alunos/'); // ou IP do seu PC
+        const json = await response.json();
+
+        if (json.status === 'OK') {
+          setAlunos(json.data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar alunos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlunos();
+  }, []);
+
+  const renderItem = ({ item }: { item: Aluno }) => (
     <View style={styles.card}>
-      <Text style={styles.nome}>{item.nome}</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.nome}>{item.nome}</Text>
+        <View style={styles.actions}>
+          <TouchableOpacity>
+            <MaterialIcons name="check" size={30} />
+          </TouchableOpacity>
 
-      <View style={styles.buttonsRow}>
-        <TouchableOpacity style={[styles.btn, styles.btnAceitar]}>
-          <Text style={styles.btnText}>Aceitar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.btn, styles.btnRecusar]} onPress={() => {router.push("/admin/recusarAluno")}}>
-          <Text style={styles.btnText}>Recusar</Text>
-        </TouchableOpacity>
+          <TouchableOpacity>
+            <MaterialIcons name="close" size={30} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -29,23 +58,23 @@ export default function AdminStudentsListScreen() {
   return (
     <View style={styles.container}>
 
-      <Text style={styles.title}>Alunos</Text>
+      {loading ? (
+        <Text>Carregando...</Text>
+      ) : (
+        <FlatList
+          data={alunos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 90 }}
+        />
+      )}
 
-      <FlatList
-        data={alunos}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 90 }}
-      />
-
-      <TouchableOpacity style={styles.relatorioBtn}>
-        <Text style={styles.relatorioText} onPress={() => router.push("/admin/relatorio")}>Gerar Relatório</Text>
+      <TouchableOpacity style={styles.relatorioBtn} onPress={() => router.push("/admin/relatorio")}>
+        <Text style={styles.relatorioText}>Gerar Relatório</Text>
       </TouchableOpacity>
-
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -68,16 +97,22 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     elevation: 2,
   },
-
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
   nome: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "500",
     marginBottom: 12,
+    color: "#272727ff",
   },
 
-  buttonsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16
   },
 
   btn: {
@@ -85,7 +120,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
-    marginHorizontal: 5,
+    marginHorizontal: 50,
   },
 
   btnAceitar: {

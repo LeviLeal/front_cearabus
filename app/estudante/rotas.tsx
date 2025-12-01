@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 type Rota = {
   id: string;
@@ -18,26 +18,18 @@ const rotas: Rota[] = [
 export default function Rotass() {
   const renderItem = () => (
     <View style={styles.card}>
-      <Text style={styles.horario}>Horário: (preencher)</Text>
-      <Text style={styles.label}>Faculdades:</Text>
+      <Text style={styles.horario}>14h - 17h</Text>
       <View style={styles.listaFaculdades}>
-        <Text style={styles.placeholder}>- (preencher)</Text>
-        <Text style={styles.placeholder}>- (preencher)</Text>
+        <Text style={styles.faculdades}>UFC - IFCE</Text>
       </View>
 
-      <Text style={styles.label}>Rota:</Text>
-      <Text style={styles.placeholder}>(preencher)</Text>
+      <Text style={styles.rota}>Pinheiro - Dext</Text>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Ver Detalhes</Text>
-      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Rotas e Horários</Text>
-
       <FlatList
         data={rotas}
         keyExtractor={(item) => item.id}
@@ -54,12 +46,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
   card: {
     backgroundColor: '#f2f2f2',
     padding: 16,
@@ -68,18 +54,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   horario: {
-    fontSize: 18,
+    fontSize: 26,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#191919ff'
   },
-  label: {
-    marginTop: 8,
+  faculdades: {
+    fontSize: 20,
+    color: '#2a2a2aff',
+    fontWeight: '500'
+  },
+  rota: {
     fontSize: 16,
-    fontWeight: '500',
-  },
-  placeholder: {
-    color: '#555',
-    fontSize: 15,
+    color: '#333',
+    marginTop: 8
   },
   listaFaculdades: {
     marginLeft: 10,
