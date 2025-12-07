@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f8f8',
     padding: 16,
     marginBottom: 15,
-    borderRadius: 12,
+    borderRadius: 15,
     elevation: 2
   },
   tempo: {

@@ -6,78 +6,48 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 
 export default function PerfilEstudante() {
 
-  type Usuario = {
+  type Admin = {
     id: number;
     nome: string;
     cpf: string;
-    aprovado: boolean;
-    curso: string;
-    declaracao_matricula: string;
-    foto_rosto: string,
-    instituicao: string,
-    ponto_embarque: string;
-    senha: string;
-    turno: string;
   };
 
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [admin, setAdmin] = useState<Admin | null>(null)
 
   useEffect(() => {
     async function carregar() {
-      const data = await AsyncStorage.getItem("usuario")
+      const data = await AsyncStorage.getItem("admin")
       if (data) {
-        setUsuario(JSON.parse(data))
+        setAdmin(JSON.parse(data))
         console.log(data)
       }
 
     }
     carregar()
   }, [])
-  console.log(usuario)
+  console.log(admin)
   return (
     <View style={styles.container}>
 
-      {false ? (
-        <ScrollView>
+      <ScrollView>
 
-          <View style={styles.card}>
-            <MaterialIcons name="person-pin" size={200} />
+        <View style={styles.card}>
+          <MaterialIcons name="admin-panel-settings" size={200} />
 
-            <Text style={styles.label}>Nome </Text>
-            <Text style={styles.placeholder}>{usuario?.nome}</Text>
+          <Text style={styles.label}>Nome </Text>
+          <Text style={styles.placeholder}>{admin?.nome}</Text>
 
-            <Text style={styles.label}>Curso</Text>
-            <Text style={styles.placeholder}>{usuario?.curso}</Text>
+          <Text style={styles.label}>CPF</Text>
+          <Text style={styles.placeholder}>{admin?.cpf}</Text>
 
-            <Text style={styles.label}>Instituição</Text>
-            <Text style={styles.placeholder}>{usuario?.instituicao}</Text>
-
-            <Text style={styles.label}>Turno</Text>
-            <Text style={styles.placeholder}>{usuario?.turno}</Text>
-
-            <Text style={styles.label}>Ponto de Embarque</Text>
-            <Text style={styles.placeholder}>{usuario?.ponto_embarque}</Text>
-
-          </View>
-        </ScrollView>
-
-      ) : (
-        <View style={styles.no_access_container}>
-          <View style={styles.no_access_card}>
-            <MaterialIcons name="block" size={350} color={"gray"} />
-            <Text style={styles.text_status}>Status do aluno não regularizado</Text>
-            <Text style={styles.text_info}>Aguarde um secretário verificar os seus dados</Text>
-          </View>
         </View>
-      )}
-
-      <TouchableOpacity style={styles.logoutButton} onPress={async () => {
+      </ScrollView>
+      <TouchableOpacity style={styles.logoutButton} onPress={async () => { 
         await AsyncStorage.removeItem("admin")
-        router.replace("/")
+        router.replace("/") 
       }}>
         <Text style={styles.logoutButtonText}>Sair do sistema</Text>
       </TouchableOpacity>
-
     </View>
   );
 }

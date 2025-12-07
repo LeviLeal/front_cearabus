@@ -1,41 +1,65 @@
-import React from 'react';
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 type Rota = {
-  id: string;
+  id: number;
   horario: string;
-  faculdades: string[];
-  rota: string;
+  destinos: string;
+  instituicoes: string;
+  tipo_partida: string;
 };
 
-// Dados vazios apenas pra estruturar
-const rotas: Rota[] = [
-  { id: '1', horario: '', faculdades: [], rota: '' },
-  { id: '2', horario: '', faculdades: [], rota: '' },
-  { id: '3', horario: '', faculdades: [], rota: '' },
-];
+export default function AlertsScreen() {
+  const [rotas, setRotas] = useState<Rota[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function Rotass() {
-  const renderItem = () => (
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRota = async () => {
+        try {
+          const response = await fetch("http://10.0.2.2:3000/rota/listar/");
+          const json = await response.json();
+
+          if (json.status === "OK") {
+            setRotas(json.data);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar rotas:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchRota();
+    }, [])
+  );
+
+  const renderItem = ({ item }: { item: Rota }) => (
     <View style={styles.card}>
-      <Text style={styles.horario}>14h - 17h</Text>
-      <View style={styles.listaFaculdades}>
-        <Text style={styles.faculdades}>UFC - IFCE</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.horario}>{item.horario}H - {item.tipo_partida == "saida" ? "Saída" : "Retorno"}</Text>
       </View>
-
-      <Text style={styles.rota}>Pinheiro - Dext</Text>
-
+      <View style={styles.listaFaculdade}>
+        <Text>{item.instituicoes}</Text>
+        <Text>{item.destinos}</Text>
+      </View>
     </View>
   );
 
+
   return (
     <View style={styles.container}>
-      <FlatList
-        data={rotas}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+
+      {loading ? (
+        <Text>Carregando...</Text>
+      ) : (
+        <FlatList
+          data={rotas}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 30 }}
+        />
+      )}
     </View>
   );
 }
@@ -44,44 +68,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
-  card: {
-    backgroundColor: '#f2f2f2',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 15,
-    elevation: 2,
-  },
-  horario: {
+  header: {
+    textAlign: 'center',
     fontSize: 26,
     fontWeight: '600',
-    marginBottom: 8,
-    color: '#191919ff'
+    marginBottom: 20
   },
-  faculdades: {
-    fontSize: 20,
-    color: '#2a2a2aff',
+  card: {
+    backgroundColor: '#f8f8f8',
+    padding: 16,
+    marginBottom: 15,
+    borderRadius: 12,
+    elevation: 2
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  tempo: {
+    fontSize: 14,
+    color: '#777',
     fontWeight: '500'
   },
-  rota: {
+  conteudo: {
     fontSize: 16,
     color: '#333',
     marginTop: 8
   },
-  listaFaculdades: {
-    marginLeft: 10,
+  removeText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 15,
   },
-  button: {
-    marginTop: 14,
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
+  horario: {
+    fontSize: 18,
     fontWeight: '600',
-    fontSize: 16,
+    marginBottom: 8,
+    color: "#444"
   },
+  listaFaculdade: {
+
+  }
 });

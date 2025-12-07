@@ -34,6 +34,7 @@ export default function LoginScreen() {
         await AsyncStorage.setItem("usuario", JSON.stringify(dados.user_data));
       } else if (tipo === "admin") {
         router.push("/admin/nav");
+        console.log(dados.user_data)
         await AsyncStorage.setItem("admin", JSON.stringify(dados.user_data));
       }
 

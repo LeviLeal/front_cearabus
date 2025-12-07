@@ -61,14 +61,10 @@ export default function AlertsScreen() {
             <View style={styles.cardHeader}>
                 {/* Como a API não envia tempo, você pode adaptar */}
                 <Text style={styles.tempo}>{item.titulo}</Text>
-
                 <View style={styles.actions}>
-
                     <TouchableOpacity onPress={() => handleExcluir(item.id)}>
                         <MaterialIcons name="close" size={24} />
                     </TouchableOpacity>
-
-
                 </View>
             </View>
 

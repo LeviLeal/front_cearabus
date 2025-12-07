@@ -1,121 +1,157 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Rota = {
-  id: string;
+  id: number;
   horario: string;
-  faculdades: string[];
-  rota: string;
+  destinos: string;
+  instituicoes: string;
+  tipo_partida: string;
 };
 
-// Dados vazios apenas pra estruturar
-const rotas: Rota[] = [
-  { id: '1', horario: '', faculdades: [], rota: '' },
-  { id: '2', horario: '', faculdades: [], rota: '' },
-  { id: '3', horario: '', faculdades: [], rota: '' },
-];
+export default function AlertsScreen() {
+  const [rotas, setRotas] = useState<Rota[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function Rotass() {
-  const renderItem = () => (
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRota = async () => {
+        try {
+          const response = await fetch("http://10.0.2.2:3000/rota/listar/");
+          const json = await response.json();
+
+          if (json.status === "OK") {
+            setRotas(json.data);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar rotas:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchRota();
+    }, [])
+  );
+
+
+  const handleExcluir = async (id: number) => {
+    try {
+      const response = await fetch(`http://10.0.2.2:3000/rota/remover/${id}`, {
+        method: "DELETE",
+      });
+
+      const json = await response.json();
+      console.log(json);
+
+      if (json.status === "OK") {
+        // remove da lista local
+        setRotas((prev) => prev.filter((rota) => rota.id !== id));
+      }
+    } catch (error) {
+      console.error("Erro ao excluir rota:", error);
+    }
+  };
+
+
+  const renderItem = ({ item }: { item: Rota }) => (
     <View style={styles.card}>
-      <Text style={styles.horario}>Horário</Text>
-      <View style={styles.listaFaculdades}>
-        <Text style={styles.placeholder}>Faculdade 1</Text>
-        <Text style={styles.placeholder}>Faculdade 2</Text>
+      <View style={styles.cardHeader}>
+        <Text style={styles.horario}>{item.horario}H - {item.tipo_partida == "saida" ? "Saída" : "Retorno"}</Text>
+        <View style={styles.actions}>
+          <TouchableOpacity onPress={() => handleExcluir(item.id)}>
+            <MaterialIcons name="close" size={24} />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <Text style={styles.placeholder}>Rotas</Text>
-
-      {/* Botões de editar e remover */}
-      <View style={styles.actionsRow}>
-
-        <TouchableOpacity style={styles.removeButton}>
-          <Text style={styles.removeText}>Remover</Text>
-        </TouchableOpacity>
+      <View style={styles.listaFaculdade}>
+        <Text>{item.instituicoes}</Text>
+        <Text>{item.destinos}</Text>
       </View>
 
     </View>
   );
 
+
   const renderFooter = () => (
-    <TouchableOpacity style={styles.addButton} onPress={() => {router.push("/admin/adicionarRota")}}>
+    <TouchableOpacity style={styles.addButton} onPress={() => { router.push("/admin/adicionarRota") }}>
       <Text style={styles.addButtonText}>+ Adicionar nova rota</Text>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={rotas}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        ListFooterComponent={renderFooter}
-      />
+
+      {loading ? (
+        <Text>Carregando...</Text>
+      ) : (
+        <FlatList
+          data={rotas}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 30 }}
+          ListFooterComponent={renderFooter}
+        />
+      )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
-  title: {
+  header: {
+    textAlign: 'center',
     fontSize: 26,
     fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center',
+    marginBottom: 20
   },
   card: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f8f8f8',
     padding: 16,
-    borderRadius: 12,
     marginBottom: 15,
-    elevation: 2,
+    borderRadius: 12,
+    elevation: 2
   },
-  horario: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
-  label: {
-    marginTop: 8,
+  tempo: {
+    fontSize: 14,
+    color: '#777',
+    fontWeight: '500'
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16
+  },
+  conteudo: {
     fontSize: 16,
-    fontWeight: '500',
+    color: '#333',
+    marginTop: 8
   },
-  placeholder: {
-    color: '#555',
-    fontSize: 15,
+  addButton: {
+    backgroundColor: '#28a745',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+    elevation: 2
   },
-  listaFaculdades: {
-    marginLeft: 10,
+  addButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 17,
   },
-
-  // Botões
-  actionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 14,
-  },
-
-  editButton: {
-    flex: 1,
-    backgroundColor: "#ffc107",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginRight: 6,
-  },
-  editText: {
-    color: "#000",
-    fontWeight: "600",
-    fontSize: 15,
-  },
-
   removeButton: {
     flex: 1,
     backgroundColor: "rgba(254, 73, 91, 1)",
@@ -129,30 +165,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 15,
   },
-
-  button: {
-    marginTop: 12,
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
+  horario: {
+    fontSize: 18,
     fontWeight: '600',
-    fontSize: 16,
+    marginBottom: 8,
+    color: "#444"
   },
+  listaFaculdade: {
 
-  addButton: {
-    backgroundColor: '#28a745',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 17,
-  },
+  }
 });

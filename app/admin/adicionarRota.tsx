@@ -1,72 +1,93 @@
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 export default function AdicionarRota() {
-  const [destinos, setDestinos] = useState<string[]>([]);
-  const [novoDestino, setNovoDestino] = useState('');
-
+  const [destinos, setDestinos] = useState('');
   const [horario, setHorario] = useState('');
   const [instituicoes, setInstituicoes] = useState('');
-  const [motorista, setMotorista] = useState('');
+  const [tipoPartida, setTipoPartida] = useState('');
 
-  const adicionarDestino = () => {
-    if (novoDestino.trim() === '') return;
-    setDestinos([...destinos, novoDestino]);
-    setNovoDestino('');
-  };
+  const listaTipoPartida = [
+    { label: "Saída", value: "saida" },
+    { label: "Retorno", value: "retorno" },
+  ];
 
-  const removerDestino = (index: number) => {
-    const lista = [...destinos];
-    lista.splice(index, 1);
-    setDestinos(lista);
+const handleEnviar = async () => {
+    if (destinos == "" || horario == "") {
+      alert("Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      console.log(destinos + horario + instituicoes + tipoPartida)
+      const resposta = await fetch("http://10.0.2.2:3000/rota/criar/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          horario,
+          destinos,
+          instituicoes,
+          tipoPartida
+
+        })
+
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.mensagem || "Erro ao adicionar srota.");
+        return;
+      }
+
+      alert("Rota adicionada com sucesso!");
+
+
+    } catch (erro) {
+      console.log("Erro:", erro);
+      alert("Falha ao conectar com o servidor.");
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Adicionar Nova Rota</Text>
 
-      {/* Destinos */}
-      <Text style={styles.label}>Destinos:</Text>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          placeholder="Digite um destino"
-          value={novoDestino}
-          onChangeText={setNovoDestino}
+      <Text style={styles.label}>Destinos:</Text>
+      <TextInput
+          style={[styles.input]}
+          placeholder="Digite os destinos."
+          value={destinos}
+          onChangeText={setDestinos}
         />
 
-        <TouchableOpacity style={styles.addButton} onPress={adicionarDestino}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Lista de destinos */}
-      <FlatList
-        data={destinos}
-        keyExtractor={(item, index) => index.toString()}
-        style={{ marginTop: 10 }}
-        ListEmptyComponent={
-          <Text style={styles.placeholder}>Nenhum destino adicionado ainda</Text>
-        }
-        renderItem={({ item, index }) => (
-          <View style={styles.destinoItem}>
-            <Text style={styles.destinoText}>• {item}</Text>
-
-            <TouchableOpacity onPress={() => removerDestino(index)}>
-              <Text style={styles.removeDestino}>Remover</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
       {/* Campos adicionais */}
-      <Text style={styles.label}>Horário de início:</Text>
+      <Text style={styles.label}>Horário de saída/retorno:</Text>
       <TextInput
         style={styles.input}
         placeholder="Ex: 06:30"
         value={horario}
         onChangeText={setHorario}
+      />
+
+      <Text style={styles.label}>Tipo de partida:</Text>
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        data={listaTipoPartida}
+        maxHeight={200}
+        labelField="label"
+        valueField="value"
+        placeholder="Selecione..."
+        value={tipoPartida}
+        onChange={(item) => {
+          setTipoPartida(item.value);
+        }}
       />
 
       <Text style={styles.label}>Instituições atendidas:</Text>
@@ -77,17 +98,9 @@ export default function AdicionarRota() {
         onChangeText={setInstituicoes}
       />
 
-      <Text style={styles.label}>Motorista:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome do motorista"
-        value={motorista}
-        onChangeText={setMotorista}
-      />
-
       {/* Botão final */}
-      <TouchableOpacity style={styles.finalizarButton}>
-        <Text style={styles.finalizarText}>Salvar Rota</Text>
+      <TouchableOpacity style={styles.finalizarButton} onPress={handleEnviar}>
+        <Text style={styles.finalizarText}>Adicionar rota</Text>
       </TouchableOpacity>
     </View>
   );
@@ -173,5 +186,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '700',
+  },
+  dropdown: {
+    height: 50,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: "#f2f2f2",
+    
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: "#888",
+  },
+  selectedTextStyle: {
+    fontSize: 16,
   },
 });

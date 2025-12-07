@@ -99,9 +99,7 @@ const styles = StyleSheet.create({
 
   textarea: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 12,
     fontSize: 15,
     textAlignVertical: 'top',
@@ -113,9 +111,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 12,
     fontSize: 15,
     backgroundColor: '#f8f8f8'

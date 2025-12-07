@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 type Aluno = {
   id: number;
@@ -18,40 +18,76 @@ type Aluno = {
 export default function AdminStudentsListScreen() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const fetchAlunos = async () => {
+    try {
+      const response = await fetch("http://10.0.2.2:3000/admin/listar_alunos/");
+      const json = await response.json();
 
-  useEffect(() => {
-    const fetchAlunos = async () => {
-      try {
-        const response = await fetch('http://10.0.2.2:3000/admin/listar_alunos/'); // ou IP do seu PC
-        const json = await response.json();
-
-        if (json.status === 'OK') {
-          setAlunos(json.data);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar alunos:', error);
-      } finally {
-        setLoading(false);
+      if (json.status === "OK") {
+        setAlunos(json.data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao carregar alunos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchAlunos();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+
+      fetchAlunos();
+    }, [])
+  );
+
+  const handleAprovar = async (id: number) => {
+    try {
+      const response = await fetch(`http://10.0.2.2:3000/admin/aprovar/${id}`, {
+        method: "PATCH",
+      });
+
+      const json = await response.json();
+      console.log(json);
+      fetchAlunos()
+
+    } catch (error) {
+      console.error("Erro ao aprovar aluno:", error);
+    }
+  };
+
+  const handleReprovar = async (id: number) => {
+    try {
+      const response = await fetch(`http://10.0.2.2:3000/admin/reprovar/${id}`, {
+        method: "PATCH",
+      });
+
+      const json = await response.json();
+      console.log(json);
+      fetchAlunos()
+
+    } catch (error) {
+      console.error("Erro ao reprovar aluno:", error);
+    }
+  };
+
+
 
   const renderItem = ({ item }: { item: Aluno }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.nome}>{item.nome}</Text>
         <View style={styles.actions}>
-          <TouchableOpacity>
-            <MaterialIcons name="check" size={30} />
+          <TouchableOpacity onPress={() => handleAprovar(item.id)}>
+            <MaterialIcons name="check" size={30} color={"green"} />
           </TouchableOpacity>
 
-          <TouchableOpacity>
-            <MaterialIcons name="close" size={30} />
+          <TouchableOpacity onPress={() => handleReprovar(item.id)}>
+            <MaterialIcons name="close" size={30} color={"red"} />
           </TouchableOpacity>
         </View>
       </View>
+      <Text style={styles.status}>Status: {item.aprovado ? "Aprovada" : "Pendente"}</Text>
     </View>
   );
 
@@ -103,10 +139,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   nome: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "500",
     marginBottom: 12,
-    color: "#272727ff",
+    color: "black",
   },
 
   actions: {
@@ -154,4 +190,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
+  status: {
+    color: "dark",
+    fontWeight: "bold",
+    fontSize: 15
+  }
 });

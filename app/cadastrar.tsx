@@ -1,12 +1,14 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from 'react';
 import {
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+
 
 export default function RegisterScreen() {
 
@@ -17,14 +19,15 @@ export default function RegisterScreen() {
 
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [numeroMatricula, setNumeroMatricula] = useState("");
   const [senha, setSenha] = useState("");
   const [repetirSenha, setRepetirSenha] = useState("");
 
   const [universidade, setUniversidade] = useState("Selecionar");
   const [showUniversidade, setShowUniversidade] = useState(false);
-  
+
   const [turno, setTurno] = useState("Selecionar");
-  const [showTurno, setShowTurno] = useState(false);
 
   const universidades = [
     "IFCE",
@@ -43,6 +46,7 @@ export default function RegisterScreen() {
   const [listaCursos, setListaCursos] = useState<Curso[]>([])
   const [curso, setCurso] = useState("Selecionar")
   const [mostrarCurso, setMostrarCurso] = useState(false)
+  const [mostrarTurno, setMostrarTurno] = useState(false)
 
   useEffect(() => {
     const carregarCursos = async () => {
@@ -77,9 +81,12 @@ export default function RegisterScreen() {
         body: JSON.stringify({
           nome,
           cpf,
+          telefone,
           curso,
           universidade,
+          numeroMatricula,
           senha,
+          turno,
         })
       });
 
@@ -92,7 +99,6 @@ export default function RegisterScreen() {
 
       alert("Cadastro realizado com sucesso!");
 
-      // Redirecionar para login
       router.push("/");
 
     } catch (erro) {
@@ -102,7 +108,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
 
       {/* <Text style={styles.label}>Comprovante de Residência</Text> */}
       {/* <TouchableOpacity style={styles.uploadButton}> */}
@@ -133,6 +139,34 @@ export default function RegisterScreen() {
           const apenasNumeros = texto.replace(/[^0-9]/g, "");
           const cpfLimitado = apenasNumeros.slice(0, 11);
           setCpf(cpfLimitado);
+        }}
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Telefone</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="(00) 00000000000"
+        placeholderTextColor="#777"
+        value={telefone}
+        onChangeText={(texto) => {
+          const apenasNumeros = texto.replace(/[^0-9]/g, "");
+          const telefoneLimitado = apenasNumeros.slice(0, 11);
+          setTelefone(telefoneLimitado);
+        }}
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Número matricula</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Número da sua matrícula"
+        placeholderTextColor="#777"
+        value={numeroMatricula}
+        onChangeText={(texto) => {
+          const apenasNumeros = texto.replace(/[^0-9]/g, "");
+          const numeroMatriculaLimitado = apenasNumeros.slice(0, 11);
+          setNumeroMatricula(numeroMatriculaLimitado);
         }}
         keyboardType="numeric"
       />
@@ -189,16 +223,15 @@ export default function RegisterScreen() {
         </View>
       )}
 
-        <Text style={styles.label}>Turno</Text>
-
+      <Text style={styles.label}>Turno</Text>
       <TouchableOpacity
         style={styles.dropdown}
-        onPress={() => setShowTurno(!showTurno)}
+        onPress={() => setMostrarTurno(!mostrarTurno)}
       >
-        <Text style={styles.dropdownText}>{universidade}</Text>
+        <Text style={styles.dropdownText}>{turno}</Text>
       </TouchableOpacity>
 
-      {showTurno && (
+      {mostrarTurno && (
         <View style={styles.dropdownMenu}>
           {turnos.map((item, index) => (
             <TouchableOpacity
@@ -206,7 +239,7 @@ export default function RegisterScreen() {
               style={styles.option}
               onPress={() => {
                 setTurno(item);
-                setShowTurno(false);
+                setMostrarTurno(false);
               }}
             >
               <Text>{item}</Text>
@@ -239,7 +272,7 @@ export default function RegisterScreen() {
         <Text style={styles.registerText}>Cadastrar</Text>
       </TouchableOpacity>
 
-    </View>
+    </ScrollView>
   );
 }
 
@@ -315,6 +348,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#007bff",
     paddingVertical: 15,
     borderRadius: 10,
+    marginBottom: 150
   },
 
   registerText: {
