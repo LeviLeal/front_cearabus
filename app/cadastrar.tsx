@@ -1,3 +1,4 @@
+import * as DocumentPicker from 'expo-document-picker';
 import { router } from "expo-router";
 import React, { useEffect, useState } from 'react';
 import {
@@ -8,7 +9,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-
 
 export default function RegisterScreen() {
 
@@ -21,6 +21,7 @@ export default function RegisterScreen() {
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
   const [numeroMatricula, setNumeroMatricula] = useState("");
+  const [pontoEmbarque, setPontoEmbarque] = useState("");
   const [senha, setSenha] = useState("");
   const [repetirSenha, setRepetirSenha] = useState("");
 
@@ -48,6 +49,9 @@ export default function RegisterScreen() {
   const [mostrarCurso, setMostrarCurso] = useState(false)
   const [mostrarTurno, setMostrarTurno] = useState(false)
 
+  const [declaracaoMatricula, setDeclaracaoMatricula] = useState<any>(null);
+  const [comprovanteResidencia, setComprovanteResidencia] = useState<any>(null);
+
   useEffect(() => {
     const carregarCursos = async () => {
       try {
@@ -61,6 +65,28 @@ export default function RegisterScreen() {
     carregarCursos()
   }, [])
 
+  const selecionarDeclaracao = async () => {
+    const arquivo = await DocumentPicker.getDocumentAsync({
+      type: ["application/pdf", "image/*"],
+      copyToCacheDirectory: true,
+    });
+
+    if (!arquivo.canceled) {
+      setDeclaracaoMatricula(arquivo.assets[0]);
+    }
+  };
+
+  const selecionarComprovante = async () => {
+    const arquivo = await DocumentPicker.getDocumentAsync({
+      type: ["application/pdf", "image/*"],
+      copyToCacheDirectory: true,
+    });
+
+    if (!arquivo.canceled) {
+      setComprovanteResidencia(arquivo.assets[0]);
+    }
+  };
+
   const handleRegister = async () => {
     if (!nome || !cpf || !curso || !universidade || universidade === "Selecionar") {
       alert("Preencha todos os campos.");
@@ -73,21 +99,40 @@ export default function RegisterScreen() {
     }
 
     try {
-      const resposta = await fetch("http://10.0.2.2:3000/aluno/cadastrar_aluno/", {
+      const formData = new FormData();
+
+      formData.append("nome", nome);
+      formData.append("cpf", cpf);
+      formData.append("telefone", telefone);
+      formData.append("curso", curso);
+      formData.append("universidade", universidade);
+      formData.append("numeroMatricula", numeroMatricula);
+      formData.append("senha", senha);
+      formData.append("turno", turno);
+      formData.append("pontoEmbarque", pontoEmbarque);
+
+      if (declaracaoMatricula) {
+        formData.append("declaracaoMatricula", {
+          uri: declaracaoMatricula.uri,
+          name: declaracaoMatricula.name,
+          type: declaracaoMatricula.mimeType || "application/pdf"
+        } as any);
+      }
+
+      if (comprovanteResidencia) {
+        formData.append("comprovanteResidencia", {
+          uri: comprovanteResidencia.uri,
+          name: comprovanteResidencia.name,
+          type: comprovanteResidencia.mimeType || "application/pdf"
+        } as any);
+      }
+
+      const resposta = await fetch("http://10.0.2.2:3000/autenticar/cadastrar_aluno/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "multipart/form-data",
         },
-        body: JSON.stringify({
-          nome,
-          cpf,
-          telefone,
-          curso,
-          universidade,
-          numeroMatricula,
-          senha,
-          turno,
-        })
+        body: formData,
       });
 
       const dados = await resposta.json();
@@ -110,15 +155,19 @@ export default function RegisterScreen() {
   return (
     <ScrollView style={styles.container}>
 
-      {/* <Text style={styles.label}>Comprovante de Residência</Text> */}
-      {/* <TouchableOpacity style={styles.uploadButton}> */}
-      {/* <Text style={styles.uploadText}>Enviar arquivo</Text> */}
-      {/* </TouchableOpacity> */}
-      {/*  */}
-      {/* <Text style={styles.label}>Comprovante de Matrícula</Text> */}
-      {/* <TouchableOpacity style={styles.uploadButton}> */}
-      {/* <Text style={styles.uploadText}>Enviar arquivo</Text> */}
-      {/* </TouchableOpacity> */}
+      <Text style={styles.label}>Declaração de Matrícula</Text>
+      <TouchableOpacity style={styles.uploadButton} onPress={selecionarDeclaracao}>
+        <Text style={styles.uploadText}>
+          {declaracaoMatricula ? declaracaoMatricula.name : "Selecionar arquivo"}
+        </Text>
+      </TouchableOpacity>
+
+      <Text style={styles.label}>Comprovante de Residência</Text>
+      <TouchableOpacity style={styles.uploadButton} onPress={selecionarComprovante}>
+        <Text style={styles.uploadText}>
+          {comprovanteResidencia ? comprovanteResidencia.name : "Selecionar arquivo"}
+        </Text>
+      </TouchableOpacity>
 
       <Text style={styles.label}>Nome Completo</Text>
       <TextInput
@@ -171,6 +220,14 @@ export default function RegisterScreen() {
         keyboardType="numeric"
       />
 
+      <Text style={styles.label}>Ponto de embarque</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite seu ponto de embarque"
+        placeholderTextColor="#777"
+        value={pontoEmbarque}
+        onChangeText={setPontoEmbarque}
+      />
 
       <Text style={styles.label}>Universidade</Text>
 
@@ -281,13 +338,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
-  },
-
-  title: {
-    fontSize: 26,
-    textAlign: "center",
-    fontWeight: "600",
-    marginBottom: 22,
   },
 
   label: {
