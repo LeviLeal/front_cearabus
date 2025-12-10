@@ -36,7 +36,7 @@ export default function AdminComplaintsScreen() {
 
   const handleExcluir = async (id: number) => {
     try {
-      const response = await fetch(`http://10.0.2.2:3000/reclamacao/remover/${id}`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reclamacao/remover/${id}`, {
         method: "DELETE",
       });
 

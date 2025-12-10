@@ -16,7 +16,7 @@ export default function SendAlertScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://10.0.2.2:3000/aviso/criar/", {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/aviso/criar/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

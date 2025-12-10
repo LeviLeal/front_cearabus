@@ -43,7 +43,7 @@ export default function AdminStudentsListScreen() {
 
   const handleAprovar = async (id: number) => {
     try {
-      const response = await fetch(`http://10.0.2.2:3000/admin/aprovar/${id}`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/admin/aprovar/${id}`, {
         method: "PATCH",
       });
 
@@ -58,7 +58,7 @@ export default function AdminStudentsListScreen() {
 
   const handleReprovar = async (id: number) => {
     try {
-      const response = await fetch(`http://10.0.2.2:3000/admin/reprovar/${id}`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/admin/reprovar/${id}`, {
         method: "PATCH",
       });
 

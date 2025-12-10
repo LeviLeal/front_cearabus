@@ -13,7 +13,7 @@ export default function ComplaintsScreen() {
     }
 
     try {
-      const resposta = await fetch("http://10.0.2.2:3000/reclamacao/criar/", {
+      const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reclamacao/criar/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

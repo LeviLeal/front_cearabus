@@ -18,7 +18,7 @@ export default function AlertsScreen() {
         useCallback(() => {
             const fetchAvisos = async () => {
                 try {
-                    const response = await fetch("http://10.0.2.2:3000/aviso/listar/");
+                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/aviso/listar/`);
                     const json = await response.json();
 
                     if (json.status === "OK") {
@@ -37,7 +37,7 @@ export default function AlertsScreen() {
 
     const handleExcluir = async (id: number) => {
         try {
-            const response = await fetch(`http://10.0.2.2:3000/aviso/remover/${id}`, {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/aviso/remover/${id}`, {
                 method: "DELETE",
             });
 

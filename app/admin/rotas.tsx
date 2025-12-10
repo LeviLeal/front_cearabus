@@ -39,7 +39,7 @@ export default function AlertsScreen() {
 
   const handleExcluir = async (id: number) => {
     try {
-      const response = await fetch(`http://10.0.2.2:3000/rota/remover/${id}`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/rota/remover/${id}`, {
         method: "DELETE",
       });
 
@@ -54,7 +54,6 @@ export default function AlertsScreen() {
       console.error("Erro ao excluir rota:", error);
     }
   };
-
 
   const renderItem = ({ item }: { item: Rota }) => (
     <View style={styles.card}>
@@ -74,7 +73,6 @@ export default function AlertsScreen() {
 
     </View>
   );
-
 
   const renderFooter = () => (
     <TouchableOpacity style={styles.addButton} onPress={() => { router.push("/admin/adicionarRota") }}>

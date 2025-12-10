@@ -18,7 +18,7 @@ export default function AlertsScreen() {
     useCallback(() => {
       const fetchRota = async () => {
         try {
-          const response = await fetch("http://10.0.2.2:3000/rota/listar/");
+          const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/rota/listar/`);
           const json = await response.json();
 
           if (json.status === "OK") {

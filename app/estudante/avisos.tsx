@@ -13,7 +13,7 @@ type Aviso = {
 
   const carregarAvisos = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:3000/aviso/listar/');
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/aviso/listar/`);
       const json = await response.json();
 
       if (json.status === "OK") {

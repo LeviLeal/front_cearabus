@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { height } = Dimensions.get('window');
-const TOP_HEIGHT = height / 3; // primeiro terço
+const TOP_HEIGHT = height / 3;
 
 export default function LoginScreen() {
   const [login, setLogin] = useState('');
@@ -15,7 +15,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const resposta = await fetch("http://10.0.2.2:3000/autenticar/logar/", {
+      const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/autenticar/logar/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cpf: login, senha })

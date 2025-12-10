@@ -1,5 +1,4 @@
 import * as DocumentPicker from 'expo-document-picker';
-import { router } from "expo-router";
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -55,7 +54,7 @@ export default function RegisterScreen() {
   useEffect(() => {
     const carregarCursos = async () => {
       try {
-        const resposta = await fetch("http://10.0.2.2:3000/curso/listar/")
+        const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/curso/listar/`)
         const dados = await resposta.json()
         setListaCursos(dados.data)
       } catch (erro) {
@@ -65,17 +64,19 @@ export default function RegisterScreen() {
     carregarCursos()
   }, [])
 
+
+  // File picker declaracao de matricula
   const selecionarDeclaracao = async () => {
     const arquivo = await DocumentPicker.getDocumentAsync({
       type: ["application/pdf", "image/*"],
       copyToCacheDirectory: true,
     });
-
+    
     if (!arquivo.canceled) {
       setDeclaracaoMatricula(arquivo.assets[0]);
     }
   };
-
+  // File picker comprovante de residencia
   const selecionarComprovante = async () => {
     const arquivo = await DocumentPicker.getDocumentAsync({
       type: ["application/pdf", "image/*"],
@@ -87,6 +88,7 @@ export default function RegisterScreen() {
     }
   };
 
+  // Ao clicar em cadastrar
   const handleRegister = async () => {
     if (!nome || !cpf || !curso || !universidade || universidade === "Selecionar") {
       alert("Preencha todos os campos.");
@@ -99,6 +101,9 @@ export default function RegisterScreen() {
     }
 
     try {
+
+      console.log(comprovanteResidencia)
+
       const formData = new FormData();
 
       formData.append("nome", nome);
@@ -127,11 +132,8 @@ export default function RegisterScreen() {
         } as any);
       }
 
-      const resposta = await fetch("http://10.0.2.2:3000/autenticar/cadastrar_aluno/", {
+      const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/autenticar/cadastrar_aluno/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
         body: formData,
       });
 
@@ -144,7 +146,8 @@ export default function RegisterScreen() {
 
       alert("Cadastro realizado com sucesso!");
 
-      router.push("/");
+
+      // router.push("/");
 
     } catch (erro) {
       console.log("Erro:", erro);

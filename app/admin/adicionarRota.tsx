@@ -21,7 +21,7 @@ const handleEnviar = async () => {
 
     try {
       console.log(destinos + horario + instituicoes + tipoPartida)
-      const resposta = await fetch("http://10.0.2.2:3000/rota/criar/", {
+      const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/rota/criar/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
