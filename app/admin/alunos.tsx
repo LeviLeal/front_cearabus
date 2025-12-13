@@ -1,7 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useFocusEffect } from 'expo-router';
+import * as Linking from "expo-linking";
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 type Aluno = {
   id: number;
   nome: string;
@@ -13,15 +14,16 @@ type Aluno = {
   ponto_embarque: string;
   declaracao_matricula: string;
   foto_rosto: string;
+  comprovante_residencia: string;
 };
 
 export default function AdminStudentsListScreen() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const fetchAlunos = async () => {
     try {
-      const response = await fetch("http://10.0.2.2:3000/admin/listar_alunos/");
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/admin/listar_alunos/`);
       const json = await response.json();
 
       if (json.status === "OK") {
@@ -72,12 +74,23 @@ export default function AdminStudentsListScreen() {
   };
 
 
+  const handleBaixar = async (path: string) => {
+    if (!path || path == "") {
+      Alert.alert("Arquivo não encontrado")
+    }
+
+    const url = `${process.env.EXPO_PUBLIC_API_URL}/${path}`
+
+    Linking.openURL(url)
+
+  }
 
   const renderItem = ({ item }: { item: Aluno }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.nome}>{item.nome}</Text>
         <View style={styles.actions}>
+
           <TouchableOpacity onPress={() => handleAprovar(item.id)}>
             <MaterialIcons name="check" size={30} color={"green"} />
           </TouchableOpacity>
@@ -87,8 +100,21 @@ export default function AdminStudentsListScreen() {
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.status}>Status: {item.aprovado ? "Aprovada" : "Pendente"}</Text>
+      <Text>Status: {item.aprovado ? "Aprovado" : "Pendente"}</Text>
+      <Text>CPF: {item.cpf}</Text>
+
+      <View style={styles.downloadCard}>
+        <TouchableOpacity style={styles.btnDownload} onPress={() => handleBaixar(item.declaracao_matricula)}>
+          <MaterialIcons style={styles.downloadIcon} name="download" size={30} color={"#0079ff"} />
+          <Text style={styles.downloadText}>D. Matrícula</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnDownload} onPress={() => handleBaixar(item.comprovante_residencia)}>
+          <MaterialIcons style={styles.downloadIcon} name="download" size={30} color={"#0079ff"} />
+          <Text style={styles.downloadText}>C. Residência</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+
   );
 
   return (
@@ -104,10 +130,6 @@ export default function AdminStudentsListScreen() {
           contentContainerStyle={{ paddingBottom: 90 }}
         />
       )}
-
-      <TouchableOpacity style={styles.relatorioBtn} onPress={() => router.push("/admin/relatorio")}>
-        <Text style={styles.relatorioText}>Gerar Relatório</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -119,19 +141,32 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 
-  title: {
-    fontSize: 26,
-    textAlign: "center",
-    fontWeight: "600",
-    marginBottom: 20,
-  },
-
   card: {
     backgroundColor: "#f2f2f2",
     padding: 16,
     borderRadius: 12,
     marginBottom: 15,
     elevation: 2,
+  },
+  downloadCard: {
+    flexDirection: "row",
+    borderRadius: 12,
+    marginTop: 10,
+    elevation: 2,
+    justifyContent: "space-around"
+  },
+  btnDownload: {
+    backgroundColor: "#e4e4e4ff",
+    borderRadius: 12,
+    padding: 10,
+    elevation: 2,
+  },
+  downloadIcon: {
+    textAlign: "center"
+  },
+  downloadText: {
+    fontWeight: "500",
+    color: "#333"
   },
   cardHeader: {
     flexDirection: 'row',
@@ -159,37 +194,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 50,
   },
 
-  btnAceitar: {
-    backgroundColor: "#4CAF50",
-  },
-
-  btnRecusar: {
-    backgroundColor: "#E53935",
-  },
-
-  btnText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-
-  relatorioBtn: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "#0066CC",
-    paddingVertical: 15,
-    borderRadius: 10,
-    elevation: 3,
-  },
-
-  relatorioText: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "600",
-  },
   status: {
     color: "dark",
     fontWeight: "bold",

@@ -5,7 +5,7 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 type Rota = {
   id: number;
   horario: string;
-  destinos: string;
+  pontos: string;
   instituicoes: string;
   tipo_partida: string;
 };
@@ -41,7 +41,7 @@ export default function AlertsScreen() {
       </View>
       <View style={styles.listaFaculdade}>
         <Text>{item.instituicoes}</Text>
-        <Text>{item.destinos}</Text>
+        <Text>{item.pontos}</Text>
       </View>
     </View>
   );

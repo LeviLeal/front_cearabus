@@ -1,6 +1,7 @@
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useEffect, useState } from 'react';
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -46,11 +47,7 @@ export default function RegisterScreen() {
   const [listaCursos, setListaCursos] = useState<Curso[]>([])
   const [curso, setCurso] = useState("Selecionar")
   const [mostrarCurso, setMostrarCurso] = useState(false)
-  const [mostrarTurno, setMostrarTurno] = useState(false)
-
-  const [declaracaoMatricula, setDeclaracaoMatricula] = useState<any>(null);
-  const [comprovanteResidencia, setComprovanteResidencia] = useState<any>(null);
-
+  
   useEffect(() => {
     const carregarCursos = async () => {
       try {
@@ -64,30 +61,43 @@ export default function RegisterScreen() {
     carregarCursos()
   }, [])
 
+  const [mostrarTurno, setMostrarTurno] = useState(false)
 
-  // File picker declaracao de matricula
-  const selecionarDeclaracao = async () => {
-    const arquivo = await DocumentPicker.getDocumentAsync({
-      type: ["application/pdf", "image/*"],
+  const [declaracaoMatricula, setDeclaracaoMatricula] = useState<any>(null);
+  const [comprovanteResidencia, setComprovanteResidencia] = useState<any>(null);
+
+const selecionarDeclaracao = async () => {
+    const res = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
       copyToCacheDirectory: true,
     });
-    
-    if (!arquivo.canceled) {
-      setDeclaracaoMatricula(arquivo.assets[0]);
+
+    if (!res.canceled) {
+      setDeclaracaoMatricula(res.assets[0]);
     }
   };
-  // File picker comprovante de residencia
+
   const selecionarComprovante = async () => {
-    const arquivo = await DocumentPicker.getDocumentAsync({
-      type: ["application/pdf", "image/*"],
+    const res = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
       copyToCacheDirectory: true,
     });
 
-    if (!arquivo.canceled) {
-      setComprovanteResidencia(arquivo.assets[0]);
+    if (!res.canceled) {
+      setComprovanteResidencia(res.assets[0]);
     }
   };
 
+  const buildFile = (file: any) => ({
+    uri:
+      Platform.OS === "ios"
+        ? file.uri.replace("file://", "")
+        : file.uri,
+    name: file.name || "arquivo.pdf",
+    type: "application/pdf",
+  });
+
+  
   // Ao clicar em cadastrar
   const handleRegister = async () => {
     if (!nome || !cpf || !curso || !universidade || universidade === "Selecionar") {
@@ -102,8 +112,6 @@ export default function RegisterScreen() {
 
     try {
 
-      console.log(comprovanteResidencia)
-
       const formData = new FormData();
 
       formData.append("nome", nome);
@@ -116,30 +124,28 @@ export default function RegisterScreen() {
       formData.append("turno", turno);
       formData.append("pontoEmbarque", pontoEmbarque);
 
-      if (declaracaoMatricula) {
-        formData.append("declaracaoMatricula", {
-          uri: declaracaoMatricula.uri,
-          name: declaracaoMatricula.name,
-          type: declaracaoMatricula.mimeType || "application/pdf"
-        } as any);
-      }
+      (formData as any).append(
+        "declaracaoMatricula",
+        buildFile(declaracaoMatricula)
+      );
 
-      if (comprovanteResidencia) {
-        formData.append("comprovanteResidencia", {
-          uri: comprovanteResidencia.uri,
-          name: comprovanteResidencia.name,
-          type: comprovanteResidencia.mimeType || "application/pdf"
-        } as any);
-      }
+      (formData as any).append(
+        "comprovanteResidencia",
+        buildFile(comprovanteResidencia)
+      );
 
-      const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/autenticar/cadastrar_aluno/`, {
-        method: "POST",
-        body: formData,
-      });
 
-      const dados = await resposta.json();
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/autenticar/cadastrar_aluno/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      if (!resposta.ok) {
+      const dados = await response.json();
+
+      if (!response.ok) {
         alert(dados.mensagem || "Erro ao cadastrar.");
         return;
       }

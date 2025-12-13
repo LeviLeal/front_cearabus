@@ -19,7 +19,7 @@ export default function AdminComplaintsScreen() {
   useEffect(() => {
     const fetchReclamacoes = async () => {
       try {
-        const response = await fetch("http://10.0.2.2:3000/reclamacao/listar/")
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/reclamacao/listar/`)
         const json = await response.json()
 
         if (json.status === "OK")

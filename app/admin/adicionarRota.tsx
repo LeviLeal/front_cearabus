@@ -3,7 +3,8 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { Dropdown } from 'react-native-element-dropdown';
 
 export default function AdicionarRota() {
-  const [destinos, setDestinos] = useState('');
+  const [nome, setNome] = useState('');
+  const [pontos, setPontos] = useState('');
   const [horario, setHorario] = useState('');
   const [instituicoes, setInstituicoes] = useState('');
   const [tipoPartida, setTipoPartida] = useState('');
@@ -13,14 +14,13 @@ export default function AdicionarRota() {
     { label: "Retorno", value: "retorno" },
   ];
 
-const handleEnviar = async () => {
-    if (destinos == "" || horario == "") {
+const handleAdicionar = async () => {
+    if (nome == "" || pontos == "" || horario == "" || instituicoes == "" || tipoPartida == "") {
       alert("Preencha todos os campos.");
       return;
     }
 
     try {
-      console.log(destinos + horario + instituicoes + tipoPartida)
       const resposta = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/rota/criar/`, {
         method: "POST",
         headers: {
@@ -28,7 +28,7 @@ const handleEnviar = async () => {
         },
         body: JSON.stringify({
           horario,
-          destinos,
+          pontos,
           instituicoes,
           tipoPartida
 
@@ -57,15 +57,22 @@ const handleEnviar = async () => {
       <Text style={styles.title}>Adicionar Nova Rota</Text>
 
 
+      <Text style={styles.label}>Nome:</Text>
+      <TextInput
+          style={[styles.input]}
+          placeholder="Nome da rota. (ex: Rota da fábrica)."
+          value={nome}
+          onChangeText={setNome}
+        />
+
       <Text style={styles.label}>Destinos:</Text>
       <TextInput
           style={[styles.input]}
           placeholder="Digite os destinos."
-          value={destinos}
-          onChangeText={setDestinos}
+          value={pontos}
+          onChangeText={setPontos}
         />
 
-      {/* Campos adicionais */}
       <Text style={styles.label}>Horário de saída/retorno:</Text>
       <TextInput
         style={styles.input}
@@ -90,7 +97,7 @@ const handleEnviar = async () => {
         }}
       />
 
-      <Text style={styles.label}>Instituições atendidas:</Text>
+      <Text style={styles.label}>Universidades atendidas:</Text>
       <TextInput
         style={styles.input}
         placeholder="Ex: UnB, IFB, UCB..."
@@ -98,8 +105,7 @@ const handleEnviar = async () => {
         onChangeText={setInstituicoes}
       />
 
-      {/* Botão final */}
-      <TouchableOpacity style={styles.finalizarButton} onPress={handleEnviar}>
+      <TouchableOpacity style={styles.finalizarButton} onPress={handleAdicionar}>
         <Text style={styles.finalizarText}>Adicionar rota</Text>
       </TouchableOpacity>
     </View>
@@ -157,22 +163,6 @@ const styles = StyleSheet.create({
     color: '#777',
     fontStyle: 'italic',
     textAlign: 'center',
-  },
-
-  destinoItem: {
-    backgroundColor: '#f2f2f2',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 6,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  destinoText: {
-    fontSize: 16,
-  },
-  removeDestino: {
-    color: '#dc3545',
-    fontWeight: '600',
   },
 
   finalizarButton: {

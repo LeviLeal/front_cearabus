@@ -29,17 +29,16 @@ export default function PerfilEstudante() {
   return (
     <View style={styles.container}>
 
-      <ScrollView>
+      <ScrollView >
 
         <View style={styles.card}>
-          <MaterialIcons name="admin-panel-settings" size={200} />
-
+          <MaterialIcons name="admin-panel-settings" size={200} color={"gray"} />
+          <Text><b>Você é um administrador do sistema</b></Text>
           <Text style={styles.label}>Nome </Text>
           <Text style={styles.placeholder}>{admin?.nome}</Text>
 
           <Text style={styles.label}>CPF</Text>
           <Text style={styles.placeholder}>{admin?.cpf}</Text>
-
         </View>
       </ScrollView>
       <TouchableOpacity style={styles.logoutButton} onPress={async () => { 
@@ -56,37 +55,19 @@ const styles = StyleSheet.create({
   no_access_container: {
     flex: 1,
   },
-  no_access_card: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  text_status: {
-    color: "gray",
-    fontSize: 25,
-    fontWeight: "bold"
-  },
-  text_info: {
-    color: "gray",
-    fontSize: 15
-  },
   container: {
     backgroundColor: 'white',
     flex: 1
   },
-  title: {
-    fontSize: 26,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 25,
-  },
-
   card: {
     padding: 18,
     borderRadius: 15,
     backgroundColor: "#f8f8f8",
     margin: 10,
-    elevation: 2
+    elevation: 2,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
   },
 
   label: {
